@@ -22,6 +22,11 @@ Edit the ```tester.py``` code to reflect your path, e.g.:
 
 Run ```tester.py``` the generated lidar prediction will be saved in ```data/lidar.bin```.
 
+There's also a ROS test node with a cloud publisher.
+
+Run ```python ros_tester.py``` and run ```rviz``` in a new terminal.
+Inside rviz add the ```/pseudo_lidar/cloud``` and the ```/pseudo_lidar/color/left_image``` topics.
+
 ## Creators
 
 **Federico Zappone**
