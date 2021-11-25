@@ -20,7 +20,7 @@ Edit the ```tester.py``` code to reflect your path, e.g.:
     calib_path = "data/calib/testing/calib/000000.txt"
 ```
 
-Run ```tester.py``` the generated lidar prediction will be saved in the ```data``` folder.
+Run ```tester.py``` the generated lidar prediction will be saved in ```data/lidar.bin```.
 
 ## Creators
 
