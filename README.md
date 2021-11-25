@@ -10,7 +10,7 @@
 
 Model weights are already in the ```weights``` folder in the project root.
 
-Download the [KITTI 3D Object Detection Dataset](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d)
+Download left and right images and calib data from the [KITTI 3D Object Detection Dataset](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d)
 
 Edit the ```tester.py``` code to reflect your path, e.g.:
 
