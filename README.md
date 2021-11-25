@@ -30,7 +30,7 @@ Run ```tester.py``` the generated lidar prediction will be saved in ```data/lida
 
 ## Copyright and license
 
-Code released under the [MIT License](https://github.com/federicozappone/LICENSE.md).
+Code released under the [MIT License](https://github.com/federicozappone/pseudo_lidar/LICENSE.md).
 
 ## Citation
 
