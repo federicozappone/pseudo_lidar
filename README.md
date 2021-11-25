@@ -8,7 +8,15 @@
 
 ## Quick start
 
-Model weights are already in the ```weights``` folder in the project root.
+Install torch and torchvision using pip:
+
+```pip install torch==1.10.0+cu113 torchvision==0.11.1+cu113 -f https://download.pytorch.org/whl/cu113/torch_stable.html```
+
+Install the dependencies:
+
+```pip install -r requirements.txt```
+
+Model weights are already in the ```weights``` folder of the project root.
 
 Download left and right images and calib data from the [KITTI 3D Object Detection Dataset](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d)
 
