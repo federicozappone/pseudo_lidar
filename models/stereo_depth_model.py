@@ -157,6 +157,7 @@ class SDNet(nn.Module):
             else:
                 cost[:, :refimg_fea.size()[1], i, :, :] = refimg_fea
                 cost[:, refimg_fea.size()[1]:, i, :, :] = targetimg_fea
+
         cost = cost.contiguous()
         cost = self.warp(cost, calib)
 

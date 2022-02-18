@@ -130,7 +130,6 @@ if __name__ == "__main__":
     rospy.loginfo("loading model")
 
     model = models.__dict__["SDNet"](maxdepth=80, maxdisp=192, down=2)
-
     model = nn.DataParallel(model).cuda()
     torch.backends.cudnn.benchmark = True
 

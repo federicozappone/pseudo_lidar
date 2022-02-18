@@ -4,10 +4,12 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.nn.parallel
 import numpy as np
-
+import time
+import open3d
 import models
 
 from utils.kitti_util import Calibration
+from matplotlib import cm
 
 
 def test(left_image, right_image, calib, model):
@@ -70,6 +72,11 @@ def load_test_data(left_image_path, right_image_path, calib_path):
     left_image = cv2.imread(left_image_path)
     right_image = cv2.imread(right_image_path)
 
+    #cv2.imshow("left", left_image)
+    #cv2.imshow("right", right_image)
+
+    #cv2.waitKey(0)
+
     calib_info = read_calib_file(calib_path)
     calib = np.reshape(calib_info["P2"], [3, 4])[0, 0] * dynamic_baseline(calib_info)
 
@@ -99,15 +106,31 @@ def depth_to_cloud(calib, depth, max_high):
     return cloud[valid]
 
 
-if __name__ == "__main__":
+def visualize_point_cloud(xyz, color_axis=-1, rgb=None):
+    pcd = open3d.geometry.PointCloud()
+    pcd.points = open3d.utility.Vector3dVector(xyz)
 
-    left_image_path = "data/images/left/testing/image_2/000000.png"
-    right_image_path = "data/images/right/testing/image_3/000000.png"
-    calib_path = "data/calib/testing/calib/000000.txt"
+    if color_axis >= 0:
+        if color_axis == 3:
+            axis_vis = np.arange(0, xyz.shape[0], dtype=np.float32)
+        else:
+            axis_vis = xyz[:, color_axis]
+        min_ = np.min(axis_vis)
+        max_ = np.max(axis_vis)
+
+        colors = cm.gist_rainbow((axis_vis - min_) / (max_ - min_))[:, 0:3]
+        pcd.colors = open3d.utility.Vector3dVector(colors)
+    if rgb is not None:
+        pcd.colors = open3d.utility.Vector3dVector(rgb)
+
+    open3d.visualization.draw_geometries([pcd]) 
+
+
+if __name__ == "__main__":
 
     print("loading model")
 
-    model = models.__dict__["SDNet"](maxdepth=80, maxdisp=192, down=2)
+    model = models.__dict__["SDNet"](maxdepth=80, maxdisp=192, down=4)
 
     model = nn.DataParallel(model).cuda()
     torch.backends.cudnn.benchmark = True
@@ -115,21 +138,29 @@ if __name__ == "__main__":
     checkpoint = torch.load("weights/sdn_kitti_object.pth")
     model.load_state_dict(checkpoint["state_dict"])
 
-    left_img, right_img, calib = load_test_data(left_image_path, right_image_path, calib_path)
+    model.eval()
 
-    print("running inference")
+    for i in range(90):
+        left_image_path = f"data/images/left/testing/image_2/{i:06}.png"
+        right_image_path = f"data/images/right/testing/image_3/{i:06}.png"
+        calib_path = f"data/calib/testing/calib/{i:06}.txt"
 
-    depth = test(left_img, right_img, calib, model)[0]
+        left_img, right_img, calib = load_test_data(left_image_path, right_image_path, calib_path)
 
-    print("converting depth to point cloud")
+        start_time = time.time()
+        depth = test(left_img, right_img, calib, model)[0]
+        print("inference took %s seconds" % (time.time() - start_time))
 
-    calibration = Calibration(calib_path)
-    cloud = depth_to_cloud(calibration, depth, 1)
+        colormap = cv2.applyColorMap(depth.astype("uint8"), cv2.COLORMAP_JET)
 
-    # pad 1 in the indensity dimension
-    cloud = np.concatenate([cloud, np.ones((cloud.shape[0], 1))], 1)
-    cloud = cloud.astype(np.float32)
+        cv2.imshow("depth", colormap)
+        cv2.waitKey(1)
 
-    cloud.tofile("data/lidar.bin")
+        print("generating point cloud")
+
+        calibration = Calibration(calib_path)
+        cloud = depth_to_cloud(calibration, depth, 1)
+
+        visualize_point_cloud(cloud)
 
     print("done")
