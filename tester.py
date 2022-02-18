@@ -72,11 +72,6 @@ def load_test_data(left_image_path, right_image_path, calib_path):
     left_image = cv2.imread(left_image_path)
     right_image = cv2.imread(right_image_path)
 
-    #cv2.imshow("left", left_image)
-    #cv2.imshow("right", right_image)
-
-    #cv2.waitKey(0)
-
     calib_info = read_calib_file(calib_path)
     calib = np.reshape(calib_info["P2"], [3, 4])[0, 0] * dynamic_baseline(calib_info)
 
@@ -130,7 +125,7 @@ if __name__ == "__main__":
 
     print("loading model")
 
-    model = models.__dict__["SDNet"](maxdepth=80, maxdisp=192, down=4)
+    model = models.__dict__["SDNet"](maxdepth=80, maxdisp=192, down=2)
 
     model = nn.DataParallel(model).cuda()
     torch.backends.cudnn.benchmark = True
@@ -148,15 +143,10 @@ if __name__ == "__main__":
         left_img, right_img, calib = load_test_data(left_image_path, right_image_path, calib_path)
 
         start_time = time.time()
+        
         depth = test(left_img, right_img, calib, model)[0]
+
         print("inference took %s seconds" % (time.time() - start_time))
-
-        colormap = cv2.applyColorMap(depth.astype("uint8"), cv2.COLORMAP_JET)
-
-        cv2.imshow("depth", colormap)
-        cv2.waitKey(1)
-
-        print("generating point cloud")
 
         calibration = Calibration(calib_path)
         cloud = depth_to_cloud(calibration, depth, 1)
