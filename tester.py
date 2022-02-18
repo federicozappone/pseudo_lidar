@@ -101,24 +101,14 @@ def depth_to_cloud(calib, depth, max_high):
     return cloud[valid]
 
 
-def visualize_point_cloud(xyz, color_axis=-1, rgb=None):
+def visualize_point_cloud(xyz, rgb=None):
     pcd = open3d.geometry.PointCloud()
     pcd.points = open3d.utility.Vector3dVector(xyz)
 
-    if color_axis >= 0:
-        if color_axis == 3:
-            axis_vis = np.arange(0, xyz.shape[0], dtype=np.float32)
-        else:
-            axis_vis = xyz[:, color_axis]
-        min_ = np.min(axis_vis)
-        max_ = np.max(axis_vis)
-
-        colors = cm.gist_rainbow((axis_vis - min_) / (max_ - min_))[:, 0:3]
-        pcd.colors = open3d.utility.Vector3dVector(colors)
     if rgb is not None:
         pcd.colors = open3d.utility.Vector3dVector(rgb)
 
-    open3d.visualization.draw_geometries([pcd]) 
+    open3d.visualization.draw_geometries([pcd], window_name="point cloud") 
 
 
 if __name__ == "__main__":
@@ -143,9 +133,7 @@ if __name__ == "__main__":
         left_img, right_img, calib = load_test_data(left_image_path, right_image_path, calib_path)
 
         start_time = time.time()
-        
         depth = test(left_img, right_img, calib, model)[0]
-
         print("inference took %s seconds" % (time.time() - start_time))
 
         calibration = Calibration(calib_path)
