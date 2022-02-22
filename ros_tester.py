@@ -47,37 +47,32 @@ if __name__ == "__main__":
     model = nn.DataParallel(model).cuda()
     torch.backends.cudnn.benchmark = True
 
-    model.eval()
-
     checkpoint = torch.load("weights/sdn_kitti_object.pth")
     model.load_state_dict(checkpoint["state_dict"])
 
-    rate = rospy.Rate(10) # 10hz
-
-    sample_index = 0
+    model.eval()
 
     while not rospy.is_shutdown():
 
-        left_image_path = f"data/images/left/testing/image_2/{sample_index:06}.png"
-        right_image_path = f"data/images/right/testing/image_3/{sample_index:06}.png"
-        calib_path = f"data/calib/testing/calib/{sample_index:06}.txt"
+        for sample_index in range(7517):
+            left_image_path = f"data/images/left/testing/image_2/{sample_index:06}.png"
+            right_image_path = f"data/images/right/testing/image_3/{sample_index:06}.png"
+            calib_path = f"data/calib/testing/calib/{sample_index:06}.txt"
 
-        left_img_msg = cv2_to_imgmsg(cv2.imread(left_image_path))
-        image_pub.publish(left_img_msg)
+            left_img_msg = cv2_to_imgmsg(cv2.imread(left_image_path))
+            image_pub.publish(left_img_msg)
 
-        left_img, right_img, calib = load_test_data(left_image_path, right_image_path, calib_path)
+            left_img, right_img, calib = load_test_data(left_image_path, right_image_path, calib_path)
 
-        depth = run_test(left_img, right_img, calib, model)[0]
+            depth = run_test(left_img, right_img, calib, model)[0]
 
-        calibration = Calibration(calib_path)
-        cloud = depth_to_cloud(calibration, depth, 1)
-        cloud = cloud.astype(np.float32)
+            calibration = Calibration(calib_path)
+            cloud = depth_to_cloud(calibration, depth, 1)
+            cloud = cloud.astype(np.float32)
 
-        rospy.loginfo("publishing cloud")
+            rospy.loginfo("publishing cloud")
 
-        ros_cloud = pseudo_cloud_to_pcl2(cloud)
-        pcl_pub.publish(ros_cloud)
-
-        sample_index += 1
+            ros_cloud = pseudo_cloud_to_pcl2(cloud)
+            pcl_pub.publish(ros_cloud)
 
     rospy.loginfo("done")

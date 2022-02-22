@@ -64,7 +64,8 @@ class Calibration(object):
         self.b_y = self.P[1, 3] / (-self.f_v)
 
     def read_calib_file(self, filepath):
-        ''' Read in a calibration file and parse into a dictionary.
+        ''' 
+        Read in a calibration file and parse into a dictionary.
         Ref: https://github.com/utiasSTARS/pykitti/blob/master/pykitti/utils.py
         '''
         data = {}

@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import cv2
 import torch
 import torch.nn as nn
@@ -6,6 +8,7 @@ import torch.nn.parallel
 import numpy as np
 import time
 import open3d
+
 import models
 
 from utils.kitti_util import Calibration
@@ -29,10 +32,10 @@ if __name__ == "__main__":
 
     model.eval()
 
-    for i in range(7517):
-        left_image_path = f"data/images/left/testing/image_2/{i:06}.png"
-        right_image_path = f"data/images/right/testing/image_3/{i:06}.png"
-        calib_path = f"data/calib/testing/calib/{i:06}.txt"
+    for sample_index in range(7517):
+        left_image_path = f"data/images/left/testing/image_2/{sample_index:06}.png"
+        right_image_path = f"data/images/right/testing/image_3/{sample_index:06}.png"
+        calib_path = f"data/calib/testing/calib/{sample_index:06}.txt"
 
         left_img, right_img, calib = load_test_data(left_image_path, right_image_path, calib_path)
 
